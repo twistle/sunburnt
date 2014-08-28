@@ -206,8 +206,14 @@ class SolrInterface(object):
         # When deletion is fixed to escape query strings, this will need fixed.
         self.delete(queries=self.Q(**{"*":"*"}))
 
+    def set_request_transformer(self, func):
+        self.request_transformer = func
+
     def search(self, **kwargs):
         params = params_from_dict(**kwargs)
+        if hasattr(self,"request_transformer"):
+            params = self.request_transformer(params)
+
         return self.schema.parse_response(self.conn.select(params))
 
     def query(self, *args, **kwargs):
